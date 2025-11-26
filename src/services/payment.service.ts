@@ -4,6 +4,7 @@ import {
   Transaction as TransactionEntity,
 } from '../db/entities/Transaction.entity';
 import { User } from '../db/entities/User.entity';
+import { AppError } from '../errors/AppError';
 
 export class PaymentService {
   async deposit(userId: number, amount: string) {
@@ -13,7 +14,7 @@ export class PaymentService {
         lock: { mode: 'pessimistic_write' },
       });
 
-      if (!user) throw new Error('User not found');
+      if (!user) throw new AppError('User not found', 404);
 
       const currentBalance = BigInt(user.balance);
       const depositAmount = BigInt(amount);

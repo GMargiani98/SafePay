@@ -6,3 +6,10 @@ Content-Type: application/json
     "userId": 1,
     "amount": "100"
 }
+POST http://localhost:3000/deposit 
+Content-Type: application/json 
+// SHOULD GIVE 404
+{
+    "userId": 9999,
+    "amount": "100"
+}

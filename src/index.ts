@@ -3,6 +3,7 @@ import fastify from 'fastify';
 import { initDB } from './db/db';
 
 import { PaymentService } from './services/payment.service';
+import { AppError } from './errors/AppError';
 
 const server = fastify({ logger: true });
 
@@ -26,6 +27,15 @@ server.post('/deposit', { schema: depositSchema }, async (request, reply) => {
   const result = await paymentService.deposit(userId, amount);
 
   return result;
+});
+
+server.setErrorHandler((error, request, reply) => {
+  if (error instanceof AppError) {
+    reply.status(error.statusCode).send({ error: error.message });
+  } else {
+    server.log.error(error);
+    reply.status(500).send({ error: 'Internal Server Error' });
+  }
 });
 
 try {
