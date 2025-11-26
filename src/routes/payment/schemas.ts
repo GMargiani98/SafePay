@@ -10,6 +10,12 @@ export const depositSchema = {
 };
 
 export const transferSchema = {
+  headers: {
+    type: 'object',
+    properties: {
+      'x-idempotency-key': { type: 'string' },
+    },
+  },
   body: {
     type: 'object',
     required: ['fromUserId', 'toUserId', 'amount'],

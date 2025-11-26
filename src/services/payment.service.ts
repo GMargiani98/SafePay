@@ -34,12 +34,33 @@ export class PaymentService {
     });
   }
 
-  async transfer(fromId: number, toId: number, amount: string) {
+  async transfer(
+    fromId: number,
+    toId: number,
+    amount: string,
+    idempotencyKey?: string
+  ) {
     if (fromId === toId) {
       throw new AppError('Cannot transfer to self', 400);
     }
 
     return await AppDataSource.manager.transaction(async (manager) => {
+      if (idempotencyKey) {
+        const existingTransaction = await manager.findOne(TransactionEntity, {
+          where: { idempotency_key: idempotencyKey },
+          relations: ['fromUser', 'toUser'],
+        });
+
+        if (existingTransaction) {
+          return {
+            success: true,
+            message: 'Request already processed (Idempotent)',
+            senderNewBalance: existingTransaction.fromUser.balance,
+            receiverNewBalance: existingTransaction.toUser.balance,
+          };
+        }
+      }
+
       const firstLockId = fromId < toId ? fromId : toId;
       const secondLockId = fromId < toId ? toId : fromId;
 
@@ -78,6 +99,7 @@ export class PaymentService {
         amount: amount,
         fromUser: sender,
         toUser: receiver,
+        idempotency_key: idempotencyKey || null,
       });
 
       await manager.save(transaction);

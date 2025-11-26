@@ -24,23 +24,25 @@ export class Transaction {
   })
   type: TransactionType;
 
-  @Column({ type: 'bigint' }) // Explicit type
+  @Column({ type: 'bigint' })
   amount: string;
 
-  // Relations usually work fine without explicit types because of the decorator syntax
   @ManyToOne(() => User)
   @JoinColumn({ name: 'from_user_id' })
   fromUser: User;
 
-  @Column({ type: 'int', nullable: true }) // Explicit 'int'
+  @Column({ type: 'int', nullable: true })
   from_user_id: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'to_user_id' })
   toUser: User;
 
-  @Column({ type: 'int' }) // Explicit 'int'
+  @Column({ type: 'int' })
   to_user_id: number;
+
+  @Column({ type: 'varchar', nullable: true, unique: true })
+  idempotency_key: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

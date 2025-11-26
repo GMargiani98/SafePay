@@ -18,12 +18,20 @@ export async function depositHandler(
 }
 
 export async function transferHandler(
-  request: FastifyRequest<{ Body: TransferBody }>,
+  request: FastifyRequest<{
+    Body: TransferBody;
+    Headers: { 'x-idempotency-key': string };
+  }>,
   reply: FastifyReply
 ) {
   const { fromUserId, toUserId, amount } = request.body;
+  const idempotencyKey = request.headers['x-idempotency-key'];
 
-  const result = await paymentService.transfer(fromUserId, toUserId, amount);
-
+  const result = await paymentService.transfer(
+    fromUserId,
+    toUserId,
+    amount,
+    idempotencyKey
+  );
   return result;
 }
