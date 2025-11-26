@@ -33,4 +33,60 @@ export class PaymentService {
       return { success: true, newBalance: user.balance };
     });
   }
+
+  async transfer(fromId: number, toId: number, amount: string) {
+    if (fromId === toId) {
+      throw new AppError('Cannot transfer to self', 400);
+    }
+
+    return await AppDataSource.manager.transaction(async (manager) => {
+      const firstLockId = fromId < toId ? fromId : toId;
+      const secondLockId = fromId < toId ? toId : fromId;
+
+      const userOne = await manager.findOne(User, {
+        where: { id: firstLockId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      const userTwo = await manager.findOne(User, {
+        where: { id: secondLockId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!userOne || !userTwo) {
+        throw new AppError('One or more users not found', 404);
+      }
+
+      const sender = userOne.id === fromId ? userOne : userTwo;
+      const receiver = userOne.id === toId ? userOne : userTwo;
+
+      const transferAmount = BigInt(amount);
+      const senderBalance = BigInt(sender.balance);
+
+      if (senderBalance < transferAmount) {
+        throw new AppError('Insufficient funds', 400);
+      }
+
+      sender.balance = (senderBalance - transferAmount).toString();
+      receiver.balance = (BigInt(receiver.balance) + transferAmount).toString();
+
+      await manager.save(sender);
+      await manager.save(receiver);
+
+      const transaction = manager.create(TransactionEntity, {
+        type: TransactionType.TRANSFER,
+        amount: amount,
+        fromUser: sender,
+        toUser: receiver,
+      });
+
+      await manager.save(transaction);
+
+      return {
+        success: true,
+        senderNewBalance: sender.balance,
+        receiverNewBalance: receiver.balance,
+      };
+    });
+  }
 }

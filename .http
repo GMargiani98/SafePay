@@ -13,3 +13,21 @@ Content-Type: application/json
     "userId": 9999,
     "amount": "100"
 }
+
+
+POST http://localhost:3000/transfer 
+Content-Type: application/json 
+// sender has balance for sure. expect 200
+{
+    "fromUserId": 1,
+    "toUserId": 2,
+    "amount": "500"
+}
+POST http://localhost:3000/transfer 
+Content-Type: application/json 
+// sender has insufficient balance. expect 400
+{
+    "fromUserId": 1,
+    "toUserId": 2,
+    "amount": "10000"
+}
