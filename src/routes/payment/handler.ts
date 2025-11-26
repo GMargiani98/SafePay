@@ -1,0 +1,17 @@
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { PaymentService } from '../../services/payment.service';
+
+const paymentService = new PaymentService();
+
+type DepositBody = { userId: number; amount: string };
+
+export async function depositHandler(
+  request: FastifyRequest<{ Body: DepositBody }>,
+  reply: FastifyReply
+) {
+  const { userId, amount } = request.body;
+
+  const result = await paymentService.deposit(userId, amount);
+
+  return result;
+}
