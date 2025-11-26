@@ -1,12 +1,12 @@
 
-POST http://localhost:3000/deposit 
+POST http://localhost:3000/payments/deposit 
 Content-Type: application/json 
 
 {
     "userId": 1,
     "amount": "100"
 }
-POST http://localhost:3000/deposit 
+POST http://localhost:3000/payments/deposit 
 Content-Type: application/json 
 // SHOULD GIVE 404
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
 }
 
 
-POST http://localhost:3000/transfer 
+POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
 // sender has balance for sure. expect 200
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
     "toUserId": 2,
     "amount": "500"
 }
-POST http://localhost:3000/transfer 
+POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
 // sender has insufficient balance. expect 400
 {
@@ -32,7 +32,7 @@ Content-Type: application/json
     "amount": "10000"
 }
 
-POST http://localhost:3000/transfer 
+POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
 x-idempotency-key: unique-key-123
 // key should be unique when testing. send twice. should get message   "message": "Request already processed (Idempotent)",
