@@ -1,27 +1,29 @@
 
 POST http://localhost:3000/payments/deposit 
 Content-Type: application/json 
-
+Authorization: Bearer <token>
+// we need to pass token here
 {
     "userId": 1,
     "amount": "100"
 }
 POST http://localhost:3000/payments/deposit 
 Content-Type: application/json 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MTg1MzUxfQ.Ep6ZCyOzrHz2JYkwhNt55ZFt55iQM68XNlXPbo8Upa4
 // SHOULD GIVE 404
 {
-    "userId": 9999,
     "amount": "100"
 }
 
 
 POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ1c2VyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0MTg1MzUxfQ.Ep6ZCyOzrHz2JYkwhNt55ZFt55iQM68XNlXPbo8Upa4
 // sender has balance for sure. expect 200
 {
     "fromUserId": 1,
     "toUserId": 2,
-    "amount": "500"
+    "amount": "100"
 }
 POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
@@ -35,9 +37,34 @@ Content-Type: application/json
 POST http://localhost:3000/payments/transfer 
 Content-Type: application/json 
 x-idempotency-key: unique-key-123
+// we need to pass token here
 // key should be unique when testing. send twice. should get message   "message": "Request already processed (Idempotent)",
 {
     "fromUserId": 1,
     "toUserId": 2,
     "amount": "500"
 }
+
+
+
+// REGISTER
+POST http://localhost:3000/auth/register 
+Content-Type: application/json 
+
+{
+    "email": "user@example.com",
+    "password": "password123"
+}
+
+
+// LOGIN
+POST http://localhost:3000/auth/login 
+Content-Type: application/json 
+
+{
+    "email": "user@example.com",
+    "password": "password123"
+}
+
+
+

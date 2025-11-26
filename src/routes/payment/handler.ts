@@ -3,14 +3,15 @@ import { PaymentService } from '../../services/payment.service';
 
 const paymentService = new PaymentService();
 
-type DepositBody = { userId: number; amount: string };
-type TransferBody = { fromUserId: number; toUserId: number; amount: string };
+type DepositBody = { amount: string };
+type TransferBody = { toUserId: number; amount: string };
 
 export async function depositHandler(
   request: FastifyRequest<{ Body: DepositBody }>,
   reply: FastifyReply
 ) {
-  const { userId, amount } = request.body;
+  const userId = request.user.id;
+  const { amount } = request.body;
 
   const result = await paymentService.deposit(userId, amount);
 
@@ -24,7 +25,9 @@ export async function transferHandler(
   }>,
   reply: FastifyReply
 ) {
-  const { fromUserId, toUserId, amount } = request.body;
+  const fromUserId = request.user.id;
+
+  const { toUserId, amount } = request.body;
   const idempotencyKey = request.headers['x-idempotency-key'];
 
   const result = await paymentService.transfer(
@@ -33,5 +36,6 @@ export async function transferHandler(
     amount,
     idempotencyKey
   );
+
   return result;
 }
